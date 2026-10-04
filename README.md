@@ -1,8 +1,8 @@
 # The NXB Ledger - CTF Play Box (Reference Implementation)
 
-This is a working implementation of the design in
-`IT24xxxxxx_CTF_Play_Box_Implementation-Project_Initiation.pdf` (IE3132,
-Assignment 01/02). It builds exactly what that report specifies:
+This is a working implementation of the design in CTF Play Box.
+
+It builds exactly what that report specifies:
 
 - CTFd control layer
 - Docker-hosted challenge services (loan portal, broker site, evidence checker)
