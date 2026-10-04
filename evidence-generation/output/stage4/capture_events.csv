@@ -1,0 +1,5 @@
+capture_event_id,workstation_id,application_id,timestamp_utc+0530,capture_type
+CAP-0301,NXB-BR01-WS02,APP-0711,2026-08-10T09:02:00+05:30,screen_capture
+CAP-0308,NXB-BR03-WS05,APP-0799,2026-08-10T09:10:00+05:30,screen_capture
+CAP-0312,NXB-BR03-WS07,APP-0842,2026-08-10T09:18:00+05:30,screen_capture
+CAP-0315,NXB-BR08-WS01,APP-0850,2026-08-10T09:20:00+05:30,screen_capture

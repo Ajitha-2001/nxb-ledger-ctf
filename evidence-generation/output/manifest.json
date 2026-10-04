@@ -1,0 +1,87 @@
+[
+  {
+    "file": "stage1/leaked_post.png",
+    "sha256": "d9e9cfdf9a223c43e7ef9106c1ada44271a7bd2cae2c743c46ed54cfeed6ed6e",
+    "size": 45918
+  },
+  {
+    "file": "stage4/leaked_screenshot_master.png",
+    "sha256": "d9e9cfdf9a223c43e7ef9106c1ada44271a7bd2cae2c743c46ed54cfeed6ed6e",
+    "size": 45918
+  },
+  {
+    "file": "stage2/chat_fragment.json",
+    "sha256": "8de96370684dad869169f1fcaac9dee4e0b300c7416f5d5ac3ef70550f154eba",
+    "size": 576
+  },
+  {
+    "file": "stage2/manifest_sha256.txt",
+    "sha256": "9d18e7395a66b3c97539034a3fdfa8d26f0dc434c45062bbf72a8b31cce8a8a0",
+    "size": 85
+  },
+  {
+    "file": "stage4/leaked_screenshot_master.png",
+    "sha256": "d9e9cfdf9a223c43e7ef9106c1ada44271a7bd2cae2c743c46ed54cfeed6ed6e",
+    "size": 45918
+  },
+  {
+    "file": "stage4/asset_register.csv",
+    "sha256": "f39348372a6b3fb655b626be5dd12d5dcb1bff0d45c1c7536f118b5e6e333fbb",
+    "size": 359
+  },
+  {
+    "file": "stage4/capture_events.csv",
+    "sha256": "d1ae8cf210c9b746d6cbdb1b1a276bf07ea7e2bcb82dfa403b9485581a88f24c",
+    "size": 376
+  },
+  {
+    "file": "stage4/manifest_sha256.txt",
+    "sha256": "ed1cd902d77f9f8c01a36e65a177574e91f0916a556c4ab5365b8db18d7319e0",
+    "size": 265
+  },
+  {
+    "file": "stage5/auth.csv",
+    "sha256": "7afccc1227d0a5cf1b2714cd1c5ef33d1c144dd0b12e3bf4ce67326485bbb376",
+    "size": 3818
+  },
+  {
+    "file": "stage5/app_access.csv",
+    "sha256": "d3d9bd43946d5285e237e366528238501c768757332f912372cb1c4e45803a88",
+    "size": 677
+  },
+  {
+    "file": "stage5/workstation_sessions.csv",
+    "sha256": "9b98e4ba04bdeef9472a704ecfcf0747083dc1bce547a5b79f81d1121d26c3d2",
+    "size": 2237
+  },
+  {
+    "file": "stage5/leave.csv",
+    "sha256": "d66c66b168098f3fdc791b22f9a1e6685deccbae6c37a423e6eebc46134c6d01",
+    "size": 83
+  },
+  {
+    "file": "stage5/alert_note.txt",
+    "sha256": "f653235fd4c91c1dc7c1e9ce2d99f6d2891c1f06ffb8baec071aa0af3b712f4a",
+    "size": 662
+  },
+  {
+    "file": "stage6/messages.jsonl",
+    "sha256": "60dd95d3f7a93f295f9be5cc1a3e6472ff59ef57295a2f694b01dbe1fdbb0483",
+    "size": 46207
+  },
+  {
+    "file": "stage6/directory.csv",
+    "sha256": "290d02c28fe5428e005ccde1cabecb3c8bd99067f0c2161fd9f7720687e61169",
+    "size": 229
+  },
+  {
+    "file": "stage6/broker_ledger.csv",
+    "sha256": "717cca2868cdbd0ff1a07cd0668f5ea116311858f5e2bed87f862a9b6e7c712c",
+    "size": 195
+  },
+  {
+    "file": "stage6/SCHEMA.md",
+    "sha256": "ebe909b08084adcf1b8c82bd3b4f0cd7c4195fa420241eac8960bfba14a07813",
+    "size": 1753
+  }
+]

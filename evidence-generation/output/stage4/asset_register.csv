@@ -1,0 +1,6 @@
+workstation_id,branch,assigned_employee_id,asset_type,status
+NXB-BR01-WS02,BR01,EMP011,Teller Workstation,active
+NXB-BR03-WS05,BR03,EMP038,Loan Officer Workstation,active
+NXB-BR03-WS07,BR03,EMP042,Loan Officer Workstation,active
+NXB-BR08-WS01,BR08,EMP090,Loan Officer Workstation,active
+NXB-BR03-WS09,BR03,EMP044,Loan Officer Workstation,decommissioned

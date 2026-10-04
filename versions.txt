@@ -1,0 +1,42 @@
+# NXB Ledger - recorded versions  (2026-10-01T08:03:28+00:00)
+## OS
+Ubuntu 24.04.5 LTS
+7.0.0-34-generic x86_64
+## Docker
+Docker version 29.8.2, build 7fc2dff
+Docker Compose version v5.5.1
+## Python (host)
+Python 3.12.3
+## Compose images (tag -> digest)
+ctfd/ctfd:3.7.4  ctfd/ctfd@sha256:b2cc1ff1767d919282cf9811ec41a9a4f994d502f502b4a8852999ffb1b7e81a
+mariadb:11  mariadb@sha256:79d59758afc91b89b120b0a8904d637f5a3b3e1c4900f29b740d6d46c72fef68
+nxb-ledger-ctf-broker-site  nxb-ledger-ctf-broker-site@sha256:770951a85c11d789b16dc9a15a635b78fbaf52bcce075f41b5137084409b9182
+nxb-ledger-ctf-evidence-checker  nxb-ledger-ctf-evidence-checker@sha256:b05c5360bbaad5f1e364392a5a1c51d4fea2b7932f99254712d2c2ef37ffa0e4
+nxb-ledger-ctf-loan-portal  nxb-ledger-ctf-loan-portal@sha256:eced1434aec2394f9cd082c9bb1de26241495e547c4a90c1a2c386f9ae162fca
+redis:7-alpine  redis@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
+## Python packages inside services
+### loan-portal
+blinker==1.9.0
+click==8.5.0
+Flask==3.1.3
+gunicorn==23.0.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+packaging==26.3
+Werkzeug==3.1.9
+### evidence-checker
+blinker==1.9.0
+click==8.5.0
+Flask==3.1.3
+gunicorn==23.0.0
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+packaging==26.3
+Werkzeug==3.1.9
+## Evidence
+seed version: 20260810
+16c8ca08ec76da96b5257ccafc92025a42502fb858dfdd9eafbc20d0ae94bce8  evidence-generation/output/manifest.json
+## CTFd
+64:    image: ctfd/ctfd:3.7.4

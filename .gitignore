@@ -1,0 +1,5 @@
+.env
+evidence-generation/output/secrets/
+loan-portal/loan_portal.db
+*.pyc
+__pycache__/

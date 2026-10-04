@@ -1,0 +1,132 @@
+version: "3.8"
+
+# ---------------------------------------------------------------------------
+# NXB Ledger CTF Play Box - Docker Compose stack
+# ---------------------------------------------------------------------------
+# Networks:
+#   control_net   - CTFd <-> MariaDB/Redis (backend never reaches challenge_net)
+#   challenge_net - participant-facing challenge services + evidence checker
+# Only CTFd, the loan portal, the broker site and the evidence checker publish
+# ports, and only on the host-only interface (bind via HOST_IP in .env).
+# MariaDB and Redis have NO published ports.
+# Per-service mem_limit/cpus/pids_limit are sized for the 4 vCPU / 6 GB VM (sum of limits = 4.25 GB RAM);
+# adjust after measuring under load (test T13).
+# ---------------------------------------------------------------------------
+
+networks:
+  control_net:
+    internal: false
+  challenge_net:
+    internal: false
+  backend_net:
+    internal: true   # MariaDB/Redis: no route out, matches "internal service" design
+
+volumes:
+  ctfd_uploads:
+  ctfd_db_data:
+  ctfd_redis_data:
+
+services:
+
+  db:
+    mem_limit: 768m
+    cpus: 1.0
+    pids_limit: 256
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set in .env}
+      MARIADB_DATABASE: ctfd
+      MARIADB_USER: ctfd
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?set in .env}
+    volumes:
+      - ctfd_db_data:/var/lib/mysql
+    networks:
+      - backend_net
+    # No ports published - internal backend network only
+
+  cache:
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 256
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ctfd_redis_data:/data
+    networks:
+      - backend_net
+    # No ports published - internal backend network only
+
+  ctfd:
+    mem_limit: 1536m
+    cpus: 1.5
+    pids_limit: 256
+    image: ctfd/ctfd:3.7.4
+    restart: unless-stopped
+    depends_on:
+      - db
+      - cache
+    environment:
+      UPLOAD_FOLDER: /var/uploads
+      DATABASE_URL: mysql+pymysql://ctfd:${MARIADB_PASSWORD:?set in .env}@db/ctfd
+      REDIS_URL: redis://cache:6379
+      SECRET_KEY: ${CTFD_SECRET_KEY:?set in .env}
+      WORKERS: 1
+    volumes:
+      - ctfd_uploads:/var/uploads
+    ports:
+      - "${HOST_IP:-192.168.56.10}:8000:8000"
+    networks:
+      - control_net
+      - backend_net
+
+  loan-portal:
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 256
+    build: ./loan-portal
+    restart: unless-stopped
+    environment:
+      FLASK_SECRET_KEY: ${LOAN_PORTAL_SECRET_KEY:?set in .env}
+      STAGE3_FLAG: ${STAGE3_FLAG:?set in .env, from evidence-generation/output/secrets/flags.json}
+    ports:
+      - "${HOST_IP:-192.168.56.10}:8080:5000"
+    networks:
+      - challenge_net
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+
+  broker-site:
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 256
+    build: ./broker-site
+    restart: unless-stopped
+    ports:
+      - "${HOST_IP:-192.168.56.10}:8081:8080"
+    networks:
+      - challenge_net
+    read_only: true
+    # nginx-unprivileged writes its pid/temp files under /tmp only
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  evidence-checker:
+    mem_limit: 256m
+    cpus: 0.5
+    pids_limit: 256
+    build: ./evidence-checker
+    restart: unless-stopped
+    environment:
+      ANSWER_KEY_PATH: /run/secrets/answer_key.json
+    volumes:
+      - ./evidence-generation/output/secrets/answer_key.json:/run/secrets/answer_key.json:ro
+    ports:
+      - "${HOST_IP:-192.168.56.10}:8082:5000"
+    networks:
+      - challenge_net
+    security_opt:
+      - no-new-privileges:true

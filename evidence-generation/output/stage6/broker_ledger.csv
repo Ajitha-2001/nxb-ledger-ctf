@@ -1,0 +1,4 @@
+tx_ref,broker_account,amount_lkr,date,note
+TX-101,BRK04,8000,2026-08-05,unrelated file
+TX-118,BRK17,9000,2026-08-10,payment ref linked to APP-0842
+TX-142,BRK30,6000,2026-08-11,unrelated file

@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""
+NXB Ledger - Evidence Checker
+==============================
+A small, deliberately conservative validation service for the stages whose
+answers are structured facts rather than a single embedded checkpoint flag
+(Stages 1, 4, 5 and 6). Stages 2 and 3 expose their flags directly once the
+task is solved, per the design report, and do not use this service.
+
+Security posture (matches the design report's "Flag Validation" section):
+  - Accepts only bounded JSON (<= 16 KB).
+  - Rejects unexpected fields and wrong types for the fields it does expect.
+  - Never executes participant-supplied code or reads arbitrary paths.
+  - Incorrect responses are generic (no partial-correctness hints).
+  - Simple per-IP-per-stage attempt cooldown to slow brute forcing.
+
+The answer key is loaded from a read-only mounted secrets file and is never
+returned to the client in any form.
+"""
+import json
+import os
+import time
+from collections import defaultdict
+from threading import Lock
+
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+MAX_BODY_BYTES = 16 * 1024
+app.config["MAX_CONTENT_LENGTH"] = MAX_BODY_BYTES
+
+ANSWER_KEY_PATH = os.environ.get("ANSWER_KEY_PATH", "/run/secrets/answer_key.json")
+with open(ANSWER_KEY_PATH) as f:
+    ANSWER_KEY = json.load(f)
+
+FLAGS = ANSWER_KEY["flags"]
+
+# --- naive in-memory rate limiting: 1 attempt per 3 seconds per (ip, stage) ---
+_last_attempt = defaultdict(float)
+_lock = Lock()
+COOLDOWN_SECONDS = 3
+MAX_ATTEMPTS_PER_MINUTE = 15
+_attempt_log = defaultdict(list)
+
+
+def rate_limited(key):
+    now = time.time()
+    with _lock:
+        if now - _last_attempt[key] < COOLDOWN_SECONDS:
+            return True
+        _last_attempt[key] = now
+        log = _attempt_log[key]
+        log.append(now)
+        _attempt_log[key] = [t for t in log if now - t < 60]
+        if len(_attempt_log[key]) > MAX_ATTEMPTS_PER_MINUTE:
+            return True
+    return False
+
+
+def client_key(stage):
+    return f"{request.remote_addr}:{stage}"
+
+
+def bad_request(msg="Malformed request."):
+    return jsonify({"correct": False, "message": msg}), 400
+
+
+def incorrect():
+    return jsonify({"correct": False, "message": "Incorrect. Please review the evidence and try again."}), 200
+
+
+def correct(flag):
+    return jsonify({"correct": True, "flag": flag}), 200
+
+
+def get_json_strict(expected_fields):
+    """Parse JSON body, reject unexpected fields / wrong types / oversized input."""
+    if request.content_length is not None and request.content_length > MAX_BODY_BYTES:
+        return None, "Request too large."
+    if not request.is_json:
+        return None, "Content-Type must be application/json."
+    try:
+        data = request.get_json(force=False, silent=False)
+    except Exception:
+        return None, "Invalid JSON."
+    if not isinstance(data, dict):
+        return None, "JSON body must be an object."
+    unexpected = set(data.keys()) - set(expected_fields.keys())
+    if unexpected:
+        return None, "Unexpected fields in request."
+    for field, field_type in expected_fields.items():
+        if field not in data:
+            return None, f"Missing field: {field}"
+        if not isinstance(data[field], field_type):
+            return None, f"Field {field} has the wrong type."
+        if isinstance(data[field], str) and len(data[field]) > 128:
+            return None, f"Field {field} is too long."
+    return data, None
+
+
+@app.route("/healthz")
+def healthz():
+    return {"status": "ok"}, 200
+
+
+@app.route("/check/stage1", methods=["POST"])
+def check_stage1():
+    if rate_limited(client_key("stage1")):
+        return jsonify({"correct": False, "message": "Too many attempts. Please wait."}), 429
+    data, err = get_json_strict({
+        "post_id": str,
+        "contact_code": str,
+        "feature1": str,
+        "feature2": str,
+    })
+    if err:
+        return bad_request(err)
+    key = ANSWER_KEY["stage1"]
+    if (data["post_id"].strip().upper() == key["post_id"]
+            and data["contact_code"].strip().upper() == key["contact_code"]
+            and data["feature1"].strip()
+            and data["feature2"].strip()):
+        return correct(FLAGS["stage1"])
+    return incorrect()
+
+
+@app.route("/check/stage4", methods=["POST"])
+def check_stage4():
+    if rate_limited(client_key("stage4")):
+        return jsonify({"correct": False, "message": "Too many attempts. Please wait."}), 429
+    data, err = get_json_strict({
+        "workstation_id": str,
+        "capture_event": str,
+    })
+    if err:
+        return bad_request(err)
+    key = ANSWER_KEY["stage4"]
+    if (data["workstation_id"].strip().upper() == key["workstation_id"]
+            and data["capture_event"].strip().upper() == key["capture_event"]):
+        return correct(FLAGS["stage4"])
+    return incorrect()
+
+
+@app.route("/check/stage5", methods=["POST"])
+def check_stage5():
+    if rate_limited(client_key("stage5")):
+        return jsonify({"correct": False, "message": "Too many attempts. Please wait."}), 429
+    data, err = get_json_strict({
+        "session_id": str,
+        "employee_id": str,
+        "unrelated_failed_event": str,
+    })
+    if err:
+        return bad_request(err)
+    key = ANSWER_KEY["stage5"]
+    if (data["session_id"].strip().upper() == key["session_id"]
+            and data["employee_id"].strip().upper() == key["employee_id"]
+            and data["unrelated_failed_event"].strip().upper() == key["unrelated_failed_event"]):
+        return correct(FLAGS["stage5"])
+    return incorrect()
+
+
+@app.route("/check/stage6", methods=["POST"])
+def check_stage6():
+    if rate_limited(client_key("stage6")):
+        return jsonify({"correct": False, "message": "Too many attempts. Please wait."}), 429
+    expected_fields = {
+        "employee_id": str,
+        "application_id": str,
+        "workstation_id": str,
+        "session_id": str,
+        "broker_transaction_ref": str,
+        "message_id": str,
+    }
+    data, err = get_json_strict(expected_fields)
+    if err:
+        return bad_request(err)
+    key = ANSWER_KEY["stage6"]
+    ok = all(
+        data[field].strip().upper() == key[field].upper()
+        for field in expected_fields
+    )
+    if ok:
+        return correct(FLAGS["stage6"])
+    return incorrect()
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
