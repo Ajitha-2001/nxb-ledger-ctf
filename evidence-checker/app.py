@@ -190,59 +190,113 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 
 # ---------------------------------------------------------------------------
-# Browser submission forms (GET)
+# Browser submission forms (GET) - broker-board hacker theme
 # The challenge descriptions link players directly at these URLs. A browser
-# visit is a GET, so each /check/<stage> also serves a small styled HTML form.
+# visit is a GET, so each /check/<stage> also serves a styled HTML form.
 # The form submits via fetch() as JSON to the same URL, so the strict JSON
 # validation, answer-key secrecy and rate limiting of the POST handlers apply
 # unchanged. No answer material is embedded in the page.
+# Visual language mirrors theme/nxb-theme.css (broker board): red/black ops
+# console, glitch hero, terminal-window submission forms.
 # ---------------------------------------------------------------------------
 
 FORM_CSS = """
-body{background:#070707;color:#d7d7d7;font-family:'Courier New',monospace;margin:0;padding:24px;}
-.box{max-width:560px;margin:32px auto;border:1px solid #c1121f;background:#0d0d0f;padding:28px;box-shadow:0 0 24px rgba(193,18,31,.25);}
-h1{color:#ff2b3a;font-size:20px;letter-spacing:3px;margin:0 0 4px;}
-h2{color:#f5f5f5;font-size:16px;font-weight:normal;margin:0 0 20px;}
-p.sub{color:#8a8a8a;font-size:12px;margin:0 0 20px;}
-label{display:block;margin:12px 0 4px;color:#ff6b74;font-size:13px;}
-input{width:100%%;box-sizing:border-box;background:#000;border:1px solid #c1121f;color:#f5f5f5;padding:10px;font-family:inherit;font-size:14px;}
-input:focus{outline:none;border-color:#ff2b3a;box-shadow:0 0 8px rgba(255,43,58,.4);}
-button{margin-top:20px;width:100%%;background:#c1121f;color:#fff;border:none;padding:12px;font-family:inherit;font-size:15px;letter-spacing:2px;cursor:pointer;}
-button:hover{background:#ff2b3a;}
-#result{margin-top:18px;padding:12px;font-size:14px;word-break:break-all;display:none;}
-#result.ok{display:block;border:1px solid #00e676;color:#00e676;}
-#result.bad{display:block;border:1px solid #ff2b3a;color:#ff6b74;}
-.idx a{display:block;margin:8px 0;color:#ff6b74;}
+:root{--bg:#060506;--panel:#110809;--panel2:#180b0d;--line:#3d1018;--red:#ff2a44;--red2:#b8102a;--glow:rgba(255,42,68,.38);--txt:#eadcdd;--dim:#9b7c81;--ok:#4dff94;--mono:"JetBrains Mono","Cascadia Code",Consolas,"DejaVu Sans Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.65 var(--mono);background:var(--bg);background-image:radial-gradient(ellipse 80% 45% at 50% -8%,rgba(255,42,68,.24),transparent 70%),linear-gradient(rgba(255,42,68,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,68,.05) 1px,transparent 1px);background-size:auto,44px 44px,44px 44px;background-attachment:fixed}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;background:repeating-linear-gradient(0deg,rgba(0,0,0,.26) 0 1px,transparent 1px 3px)}
+::selection{background:var(--red);color:#000}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 28px;background:rgba(6,5,6,.92);border-bottom:1px solid var(--red2);box-shadow:0 2px 24px rgba(255,42,68,.18)}
+.brand{font-weight:800;letter-spacing:.14em;color:#fff;font-size:16px}
+.brand b{color:var(--red)}
+.brand::after{content:"\\2588";color:var(--red);margin-left:6px;animation:blink 1.1s steps(1) infinite}
+.pill{border:1px solid var(--red2);color:var(--red);padding:2px 10px;font-size:12px;letter-spacing:.08em;background:rgba(255,42,68,.08)}
+main{width:100%;max-width:760px;margin:0 auto;padding:40px 24px 56px;position:relative;z-index:1}
+main.wide{max-width:1040px}
+footer{text-align:center;color:var(--dim);font-size:12px;padding:22px;border-top:1px solid var(--line);position:relative;z-index:1}
+.hero{padding:10px 0 30px}
+.glitch{position:relative;display:inline-block;font-size:clamp(28px,5.6vw,56px);font-weight:800;letter-spacing:.02em;line-height:1.05;color:#fff;text-shadow:0 0 26px var(--glow);margin:0 0 14px}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;overflow:hidden}
+.glitch::before{color:var(--red);left:-3px;clip-path:inset(0 0 60% 0)}
+.glitch::after{color:#7d0016;left:3px;clip-path:inset(55% 0 0 0)}
+.typed{color:var(--dim);min-height:1.7em;margin:0 0 8px}
+.typed::before{content:"root@nxb:~$ ";color:var(--red)}
+.typed::after{content:"\\2588";color:var(--red);animation:blink 1s steps(1) infinite}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr);gap:18px}
+.card{position:relative;background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);padding:20px 22px;color:inherit;text-decoration:none;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s,transform .2s}
+.card::before,.card::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--red);pointer-events:none}
+.card::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.card::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.card:hover{border-color:var(--red2);box-shadow:0 0 28px rgba(255,42,68,.2);transform:translateY(-2px)}
+.card .id{font-weight:800;color:var(--red);letter-spacing:.06em;font-size:18px;margin:0 0 4px}
+.card p{margin:0 0 14px;color:#dccacc;font-size:14px}
+.card .go{margin-top:auto;align-self:flex-start;color:#fff;border:1px solid var(--red);padding:9px 20px;font-size:13px;font-weight:700;letter-spacing:.06em;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.card:hover .go{background:var(--red);color:#000;box-shadow:0 0 22px var(--glow)}
+.win{border:1px solid var(--red2);background:rgba(10,4,5,.94);box-shadow:0 0 50px rgba(255,42,68,.22);position:relative}
+.win::before,.win::after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--red);pointer-events:none;z-index:2}
+.win::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.win::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.win .bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:#150709;font-size:12px;color:var(--dim)}
+.win .bar i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.win .bar i:first-child{background:var(--red)}
+.win .bar span{margin-left:auto}
+.win .wbody{padding:26px 26px 22px}
+.win h2{margin:0 0 8px;font-size:20px;color:#fff;font-weight:700}
+.win h2::before{content:"# ";color:var(--red)}
+p.sub{color:var(--dim);font-size:13px;margin:0 0 20px}
+label{display:block;font-size:12.5px;color:var(--dim);letter-spacing:.06em;margin-bottom:4px}
+input[type=text]{width:100%;font:inherit;color:#fff;background:#0a0405;border:1px solid var(--line);border-left:3px solid var(--red2);padding:11px 12px;margin-bottom:16px;caret-color:var(--red)}
+input:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(255,42,68,.18)}
+button[type=submit]{width:100%;font:inherit;font-size:14px;font-weight:700;letter-spacing:.12em;cursor:pointer;color:#fff;background:var(--red2);border:1px solid var(--red);padding:13px;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);transition:background .15s,box-shadow .15s,color .15s}
+button[type=submit]:hover{background:var(--red);color:#000;box-shadow:0 0 26px var(--glow)}
+#result{margin-top:18px;padding:12px 14px;font-size:14px;word-break:break-all;display:none}
+#result.ok{display:block;border:1px solid var(--ok);background:rgba(77,255,148,.07);color:var(--ok);box-shadow:0 0 24px rgba(77,255,148,.18)}
+#result.bad{display:block;border:1px solid var(--red);background:rgba(255,42,68,.12);color:#ffb3bd}
+#result.bad::before{content:"[!] ";color:var(--red);font-weight:800}
+p.note{font-size:12.5px;color:var(--dim);margin-top:18px;line-height:1.5}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media (max-width:600px){.topbar{padding:10px 16px}main{padding:26px 16px 40px}.win .wbody{padding:20px 18px}}
 """
 
-def _form_page(title, blurb, fields):
+def _form_page(stage, title, blurb, fields):
     inputs = "\n".join(
-        '<label for="%s">%s</label><input id="%s" name="%s" maxlength="128" required autocomplete="off">' % (n, lbl, n, n)
+        '<label for="%s">%s</label>'
+        '<input type="text" id="%s" name="%s" maxlength="128" required autocomplete="off">' % (n, lbl, n, n)
         for n, lbl in fields
     )
     field_names = json.dumps([n for n, _ in fields])
-    return ("<!doctype html><html><head><meta charset='utf-8'>"
-            "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-            "<title>%s - NXB Ledger</title><style>%s</style></head><body>"
-            "<div class='box'><h1>&#x1f575; NXB LEDGER</h1><h2>%s</h2>"
-            "<p class='sub'>%s</p>"
-            "<form id='f'>%s<button type='submit'>SUBMIT EVIDENCE</button></form>"
-            "<div id='result'></div>"
-            "<script>"
-            "var F=%s;"
-            "document.getElementById('f').addEventListener('submit',function(e){"
-            "e.preventDefault();"
-            "var r=document.getElementById('result');r.className='';r.textContent='Validating...';r.style.display='block';"
-            "var d={};for(var i=0;i<F.length;i++){d[F[i]]=document.getElementsByName(F[i])[0].value;}"
-            "fetch(window.location.pathname,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})"
-            ".then(function(resp){return resp.json().then(function(j){return {s:resp.status,j:j};});})"
-            ".then(function(x){"
-            "if(x.j.correct){r.textContent='ACCESS GRANTED - flag: '+x.j.flag;r.className='ok';}"
-            "else{r.textContent=(x.j.message||'Incorrect.');r.className='bad';}"
-            "})"
-            ".catch(function(){r.textContent='Request failed. Is the checker reachable?';r.className='bad';});"
-            "});"
-            "</script></div></body></html>") % (title, FORM_CSS, title, blurb, inputs, field_names)
+    return ( "<!doctype html><html><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>" + title + " - NXB Ledger Evidence Checker</title>"
+        "<style>" + FORM_CSS + "</style></head><body>"
+        '<div class="topbar"><div class="brand">NXB<b>LEDGER</b></div>'
+        '<div class="pill">EVIDENCE CHECKER</div></div>'
+        "<main><div class='win'>"
+        "<div class='bar'><i></i><i></i><i></i><span>submit // " + stage + "</span></div>"
+        "<div class='wbody'><h2>" + title + "</h2>"
+        "<p class='sub'>" + blurb + "</p>"
+        "<form id='f'>" + inputs + "<button type='submit'>SUBMIT EVIDENCE</button></form>"
+        "<div id='result'></div>"
+        "</div></div>"
+        "<p class='note'>Validated as JSON against the same strict rules as the API. No answer material is embedded in this page.</p>"
+        "</main>"
+        "<footer>NXB Ledger CTF &mdash; evidence validation terminal</footer>"
+        "<script>"
+        "var F=" + field_names + ";"
+        "document.getElementById('f').addEventListener('submit',function(e){"
+        "e.preventDefault();"
+        "var r=document.getElementById('result');r.className='';r.textContent='Validating...';r.style.display='block';"
+        "var d={};for(var i=0;i<F.length;i++){d[F[i]]=document.getElementsByName(F[i])[0].value;}"
+        "fetch(window.location.pathname,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)})"
+        ".then(function(resp){return resp.json().then(function(j){return {s:resp.status,j:j};});})"
+        ".then(function(x){"
+        "if(x.j.correct){r.textContent='ACCESS GRANTED - flag: '+x.j.flag;r.className='ok';}"
+        "else{r.textContent=(x.j.message||'Incorrect.');r.className='bad';}"
+        "})"
+        ".catch(function(){r.textContent='Request failed. Is the checker reachable?';r.className='bad';});"
+        "});"
+        "</script></body></html>" )
 
 STAGE_FORMS = {
     "stage1": ("Stage 1 - The Broker's Promise",
@@ -272,19 +326,30 @@ STAGE_FORMS = {
 
 @app.route("/", methods=["GET"])
 def index():
-    links = "\n".join(
-        "<a href='/check/%s'>%s</a>" % (stage, title)
-        for stage, (title, _, _) in STAGE_FORMS.items()
-    )
-    return ("<!doctype html><html><head><meta charset='utf-8'>"
-            "<title>NXB Ledger - Evidence Checker</title><style>%s</style></head>"
-            "<body><div class='box idx'><h1>&#x1f575; NXB LEDGER</h1>"
-            "<h2>Evidence Checker</h2>"
-            "<p class='sub'>Select a stage to submit evidence:</p>%s</div></body></html>") % (FORM_CSS, links)
+    cards = []
+    for stage, (title, _, _) in STAGE_FORMS.items():
+        num, _, name = title.partition(" - ")
+        cards.append(
+            "<a class='card' href='/check/" + stage + "'><div class='id'>" + num.upper() + "</div>"
+            "<p>" + name + "</p><span class='go'>Open terminal</span></a>"
+        )
+    return ( "<!doctype html><html><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>NXB Ledger - Evidence Checker</title>"
+        "<style>" + FORM_CSS + "</style></head><body>"
+        '<div class="topbar"><div class="brand">NXB<b>LEDGER</b></div>'
+        '<div class="pill">EVIDENCE CHECKER</div></div>'
+        "<main class='wide'>"
+        "<div class='hero'><h1 class='glitch' data-text='EVIDENCE CHECKER'>EVIDENCE CHECKER</h1>"
+        "<p class='typed'>validating stage submissions for the NXB investigation</p></div>"
+        "<div class='grid'>" + "\n".join(cards) + "</div>"
+        "</main>"
+        "<footer>NXB Ledger CTF &mdash; evidence validation terminal</footer>"
+        "</body></html>" )
 
 @app.route("/check/<stage>", methods=["GET"])
 def check_form(stage):
     if stage not in STAGE_FORMS:
         return jsonify({"correct": False, "message": "Unknown stage."}), 404
     title, blurb, fields = STAGE_FORMS[stage]
-    return _form_page(title, blurb, fields)
+    return _form_page(stage, title, blurb, fields)

@@ -54,7 +54,7 @@ code,pre{background:#1d0b0f!important;color:#ff8a9a!important;border:1px solid #
   55% { opacity: .45; } 56% { opacity: 1; }
 }
 [x-data="ChallengeBoard"]::before {
-  content: "NXG LEDGER";
+  content: "NXB LEDGER";
   display: block;
   text-align: center;
   font-family: "Courier New", Courier, monospace;
@@ -96,7 +96,7 @@ code,pre{background:#1d0b0f!important;color:#ff8a9a!important;border:1px solid #
 .challenge-button:hover {
   transform: translateY(-4px);
   border-color: #ff6b6b !important;
-  box-shadow: 0 0 26px rgba(255,42,42,.55), inset 0 0 26px rgba(255,42,42,.12) !important;
+  box-shadow: 0 0 26px rgba(255,42,42,.65), inset 0 0 26px rgba(255,42,42,.12) !important;
 }
 .challenge-button span {
   color: #ff6b6b !important;
