@@ -205,6 +205,7 @@ FORM_CSS = """
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;color:var(--txt);font:15px/1.65 var(--mono);background:var(--bg);background-image:radial-gradient(ellipse 80% 45% at 50% -8%,rgba(255,42,68,.24),transparent 70%),linear-gradient(rgba(255,42,68,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,68,.05) 1px,transparent 1px);background-size:auto,44px 44px,44px 44px;background-attachment:fixed}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;background:repeating-linear-gradient(0deg,rgba(0,0,0,.26) 0 1px,transparent 1px 3px)}
+#rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.32;pointer-events:none}
 ::selection{background:var(--red);color:#000}
 .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 28px;background:rgba(6,5,6,.92);border-bottom:1px solid var(--red2);box-shadow:0 2px 24px rgba(255,42,68,.18)}
 .brand{font-weight:800;letter-spacing:.14em;color:#fff;font-size:16px}
@@ -259,6 +260,28 @@ p.note{font-size:12.5px;color:var(--dim);margin-top:18px;line-height:1.5}
 @media (max-width:600px){.topbar{padding:10px 16px}main{padding:26px 16px 40px}.win .wbody{padding:20px 18px}}
 """
 
+RAIN_JS = r"""
+/* NXB theme effects: red code-rain background (#rain) and typewriter line ([data-type]). Pure cosmetic, no network. */
+(function(){
+  var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t=document.querySelector('[data-type]');
+  if(t){var s=t.getAttribute('data-type');if(calm){t.textContent=s}else{var i=0;(function k(){t.textContent=s.slice(0,++i);if(i<s.length)setTimeout(k,32)})()}}
+  var c=document.getElementById('rain');if(!c||calm)return;
+  var x=c.getContext('2d'),f=16,cols,drops,ch='01ABCDEF<>/\\{}[]#$%&*+=NXB';
+  function size(){c.width=innerWidth;c.height=innerHeight;cols=Math.ceil(c.width/f);drops=[];for(var i=0;i<cols;i++)drops[i]=Math.random()*-50}
+  size();addEventListener('resize',size);
+  setInterval(function(){
+    x.fillStyle='rgba(6,5,6,.16)';x.fillRect(0,0,c.width,c.height);x.font=f+'px monospace';
+    for(var i=0;i<cols;i++){
+      x.fillStyle=Math.random()>.97?'#fff':'#ff2a44';
+      x.fillText(ch[Math.floor(Math.random()*ch.length)],i*f,drops[i]*f);
+      if(drops[i]*f>c.height&&Math.random()>.975)drops[i]=0;drops[i]++;
+    }
+  },60);
+})();
+
+"""
+
 def _form_page(stage, title, blurb, fields):
     inputs = "\n".join(
         '<label for="%s">%s</label>'
@@ -269,7 +292,7 @@ def _form_page(stage, title, blurb, fields):
     return ( "<!doctype html><html><head><meta charset='utf-8'>"
         "<meta name='viewport' content='width=device-width,initial-scale=1'>"
         "<title>" + title + " - NXB Ledger Evidence Checker</title>"
-        "<style>" + FORM_CSS + "</style></head><body>"
+        "<style>" + FORM_CSS + "</style></head><body><canvas id='rain'></canvas>"
         '<div class="topbar"><div class="brand">NXB<b>LEDGER</b></div>'
         '<div class="pill">EVIDENCE CHECKER</div></div>'
         "<main><div class='win'>"
@@ -296,7 +319,7 @@ def _form_page(stage, title, blurb, fields):
         "})"
         ".catch(function(){r.textContent='Request failed. Is the checker reachable?';r.className='bad';});"
         "});"
-        "</script></body></html>" )
+        "</script>" + "<script>" + RAIN_JS + "</script></body></html>" )
 
 STAGE_FORMS = {
     "stage1": ("Stage 1 - The Broker's Promise",
@@ -336,16 +359,16 @@ def index():
     return ( "<!doctype html><html><head><meta charset='utf-8'>"
         "<meta name='viewport' content='width=device-width,initial-scale=1'>"
         "<title>NXB Ledger - Evidence Checker</title>"
-        "<style>" + FORM_CSS + "</style></head><body>"
+        "<style>" + FORM_CSS + "</style></head><body><canvas id='rain'></canvas>"
         '<div class="topbar"><div class="brand">NXB<b>LEDGER</b></div>'
         '<div class="pill">EVIDENCE CHECKER</div></div>'
         "<main class='wide'>"
         "<div class='hero'><h1 class='glitch' data-text='EVIDENCE CHECKER'>EVIDENCE CHECKER</h1>"
-        "<p class='typed'>validating stage submissions for the NXB investigation</p></div>"
+        "<p class='typed' data-type='validating stage submissions for the NXB investigation'></p></div>"
         "<div class='grid'>" + "\n".join(cards) + "</div>"
         "</main>"
         "<footer>NXB Ledger CTF &mdash; evidence validation terminal</footer>"
-        "</body></html>" )
+        "<script>" + RAIN_JS + "</script></body></html>" )
 
 @app.route("/check/<stage>", methods=["GET"])
 def check_form(stage):

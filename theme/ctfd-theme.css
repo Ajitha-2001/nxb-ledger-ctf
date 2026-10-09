@@ -142,3 +142,8 @@ body:has([x-data="ChallengeBoard"]) .jumbotron {
 /* full-width stage cards (replaces the 400px card width) */
 [x-data="ChallengeBoard"] .challenges-row{margin:0}
 [x-data="ChallengeBoard"] .challenges-row > div{width:100%;max-width:none;flex:0 0 100%;padding:0}
+
+/* red code-rain canvas (injected by the NXB-RAIN theme script) */
+#rain{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.28;pointer-events:none}
+/* keep page content above the rain canvas */
+main{position:relative;z-index:1}
