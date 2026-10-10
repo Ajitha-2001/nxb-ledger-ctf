@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Application - NXB Loan Portal{% endblock %}
+{% block content %}
+{% if error %}
+  <h2>Error</h2>
+  <div class="error">{{ error }}</div>
+  <p><a class="btn" href="{{ url_for('dashboard') }}">Back to dashboard</a></p>
+{% else %}
+  <p class="crumbs"><a href="{{ url_for('dashboard') }}">dashboard</a> / {{ app['application_id'] }}</p>
+  <div class="card">
+    <h2>Application {{ app['application_id'] }}
+      {% if cross_branch %}<span class="badge other">cross-branch</span>{% else %}<span class="badge own">own branch</span>{% endif %}
+    </h2>
+    <dl class="kv">
+      <dt>Owning Branch</dt><dd>{{ app['owning_branch'] }}</dd>
+      <dt>Customer ID (synthetic)</dt><dd>{{ app['customer_synthetic_id'] }}</dd>
+      <dt>Salary Band</dt><dd>{{ app['salary_band'] }}</dd>
+      <dt>Amount Requested</dt><dd>{{ app['amount_requested'] }}</dd>
+      <dt>Approval Notes</dt><dd>{{ app['approval_notes'] }}</dd>
+    </dl>
+
+    {% if cross_branch %}
+    <div class="warn">
+      <strong>Note for investigators:</strong> your account is registered to branch
+      {{ viewer_branch }}, but this application belongs to branch {{ app['owning_branch'] }}.
+      The portal returned it anyway. Document the route, the owning branch, and why the
+      branch-level authorization check appears to be missing.
+    </div>
+    {% endif %}
+
+    {% if flag %}
+    <div class="flag">Stage 3 checkpoint flag: {{ flag }}</div>
+    {% endif %}
+  </div>
+  <p><a class="btn" href="{{ url_for('dashboard') }}">Back to dashboard</a></p>
+{% endif %}
+{% endblock %}

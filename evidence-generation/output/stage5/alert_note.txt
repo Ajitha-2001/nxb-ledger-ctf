@@ -1,0 +1,8 @@
+IT SECURITY ALERT NOTE
+-----------------------
+Ref: FAIL-009
+A failed login attempt was recorded for account EMP019 at 08:42:00 (+05:30) on 2026-08-10, originating from workstation NXB-BR02-WS03.
+
+The loan officer under investigation (EMP042, Ruwan) points to this alert, attributes the leaked application incident to it, and states he was on leave for the full day.
+
+Leave records show a leave entry for EMP042 on that date. Leave status alone does not prove or disprove system activity, and this alert has no matching successful session or application-access record. Investigators should not treat this alert as confirmed evidence without further correlation.

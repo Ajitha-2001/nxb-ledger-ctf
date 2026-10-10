@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Log in - NXB Loan Portal{% endblock %}
+{% block content %}
+<div class="login">
+  <div class="win">
+    <div class="bar"><i></i><i></i><i></i><span>auth://loan-officer</span></div>
+    <div class="body">
+      <h2>Loan Officer Login</h2>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+      <form method="post" autocomplete="off">
+        <label for="username">Username</label>
+        <input id="username" type="text" name="username" required autofocus>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" required>
+        <button type="submit">Log in</button>
+      </form>
+      <p class="note">Training environment &mdash; test credentials were supplied with the Stage 3 evidence bundle.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

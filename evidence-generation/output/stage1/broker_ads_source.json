@@ -1,0 +1,38 @@
+[
+  {
+    "post_id": "PUB-011",
+    "contact_code": "BRK04",
+    "phrase": "processing charge of 3% applies before release",
+    "match": false
+  },
+  {
+    "post_id": "PUB-012",
+    "contact_code": "BRK09",
+    "phrase": "administrative fee required for fast-track approval",
+    "match": false
+  },
+  {
+    "post_id": "PUB-013",
+    "contact_code": "BRK21",
+    "phrase": "documentation clearance fee of 2% of the approved loan value",
+    "match": false
+  },
+  {
+    "post_id": "PUB-014",
+    "contact_code": "BRK17",
+    "phrase": "flat handling fee of LKR 5,000 for verification",
+    "match": false
+  },
+  {
+    "post_id": "PUB-016",
+    "contact_code": "BRK30",
+    "phrase": "urgent loan file release, contact for terms",
+    "match": false
+  },
+  {
+    "post_id": "PUB-017",
+    "contact_code": "BRK17",
+    "phrase": "documentation clearance fee of 2% of the approved loan value",
+    "match": true
+  }
+]

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}NXB Bank Loan Portal{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='nxb-theme.css') }}">
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<div class="wrap">
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}"><b>NXB</b>.LOAN-PORTAL</a>
+  <div class="users">
+    <span class="pill">TRAINING SIMULATION</span>
+    {% if session.get('username') %}
+      <span>{{ session['username'] }} [{{ session['branch'] }}]</span>
+      <a href="{{ url_for('logout') }}">log out</a>
+    {% endif %}
+  </div>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>NXB Bank internal micro loan portal &mdash; synthetic data only. Isolated training lab.</footer>
+</div>
+<script src="{{ url_for('static', filename='nxb-fx.js') }}"></script>
+</body>
+</html>

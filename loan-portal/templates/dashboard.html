@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - NXB Loan Portal{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1 class="glitch" data-text="BRANCH {{ branch }}">BRANCH {{ branch }}</h1>
+  <p class="typed" data-type="session verified. listing applications for your branch..."></p>
+  <div class="stats">
+    <div class="stat"><b>{{ apps|length }}</b><span>applications in {{ branch }}</span></div>
+    <div class="stat"><b>{{ session.get('role', '-') }}</b><span>your role</span></div>
+    <div class="stat"><b>read-only</b><span>portal mode</span></div>
+  </div>
+</section>
+<h2>Applications for branch {{ branch }}</h2>
+<table class="tbl">
+  <thead><tr><th>Application ID</th><th>Owning Branch</th><th>Amount Requested</th><th></th></tr></thead>
+  <tbody>
+  {% for a in apps %}
+  <tr>
+    <td>{{ a['application_id'] }}</td>
+    <td>{{ a['owning_branch'] }}</td>
+    <td>{{ a['amount_requested'] }}</td>
+    <td><a href="{{ url_for('view_application', application_id=a['application_id']) }}">View</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="note">You can open any application by its ID directly, e.g. <code>/application/APP-0801</code>.</p>
+{% endblock %}
